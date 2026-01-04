@@ -3,7 +3,7 @@ import Screen from "./Screen";
 import config from "./Configuration";
 
 function Computer() {
-  const [code] = useState(() => generateCode()); // I know you are trying to cheat. :)
+  const [code, setCode] = useState(() => generateCode()); // I know you are trying to cheat. :)
   const [proposition, setProposition] = useState("");
   const [propositionHistory, setPropositionHistory] = useState(Array<string>());
   const [tryCount, setTryCount] = useState(1);
@@ -27,7 +27,7 @@ function Computer() {
           <MyEntryHistory propositionHistory={propositionHistory} />
           <MyCurrentEntry proposition={proposition} tryCount={tryCount} />
         </Screen>
-        <GameKeyboard proposition={proposition} code={code} tryCount={tryCount} setTryCount={setTryCount} setProposition={setProposition} setPropositionHistory={setPropositionHistory} />
+        <GameKeyboard proposition={proposition} code={code} tryCount={tryCount} setTryCount={setTryCount} setProposition={setProposition} setPropositionHistory={setPropositionHistory} setCode={setCode} generateCode={generateCode} />
       </div>
     </>
   )
@@ -80,10 +80,10 @@ function MyCurrentEntry({proposition, tryCount}: {proposition: string; tryCount:
   )
 }
 
-function GameKeyboard({ proposition, code, tryCount, setTryCount, setProposition, setPropositionHistory }: { proposition: string; code: string; tryCount: number; setTryCount: (value: number) => void; setProposition: (value: string) => void; setPropositionHistory: (value: Array<string> | ((prev: Array<string>) => Array<string>)) => void }){
+function GameKeyboard({ proposition, code, tryCount, setTryCount, setProposition, setPropositionHistory, setCode, generateCode }: { proposition: string; code: string; tryCount: number; setTryCount: (value: number) => void; setProposition: (value: string) => void; setPropositionHistory: (value: Array<string> | ((prev: Array<string>) => Array<string>)) => void; setCode: (value: string) => void; generateCode: () => string }){
   return (
     <div className="game-keyboard">
-      <Board proposition={proposition} code={code} tryCount={tryCount} setTryCount={setTryCount} setProposition={setProposition} setPropositionHistory={setPropositionHistory} />
+      <Board proposition={proposition} code={code} tryCount={tryCount} setTryCount={setTryCount} setProposition={setProposition} setPropositionHistory={setPropositionHistory} setCode={setCode} generateCode={generateCode} />
     </div>
   );
 }
@@ -94,7 +94,7 @@ function Square({value, onSquareClick} : {value: number | string, onSquareClick 
   );
 }
 
-function Board({ proposition, code, tryCount, setTryCount, setProposition, setPropositionHistory }: { proposition: string; code: string; tryCount: number; setTryCount: (value: number) => void; setProposition: (value: string) => void; setPropositionHistory: (value: Array<string> | ((prev: Array<string>) => Array<string>)) => void }) {
+function Board({ proposition, code, tryCount, setTryCount, setProposition, setPropositionHistory, setCode, generateCode }: { proposition: string; code: string; tryCount: number; setTryCount: (value: number) => void; setProposition: (value: string) => void; setPropositionHistory: (value: Array<string> | ((prev: Array<string>) => Array<string>)) => void; setCode: (value: string) => void; generateCode: () => string }) {
   
   function handleClick(value: number) {
     if (proposition.length < config.game.difficulty) {
@@ -116,6 +116,7 @@ function Board({ proposition, code, tryCount, setTryCount, setProposition, setPr
         <MyDeleteButton proposition={proposition} setProposition={setProposition}/>
         <Square value='0' onSquareClick={ async () => handleClick(0)}/>
         <MyValidButton proposition={proposition} code={code} tryCount={tryCount} setTryCount={setTryCount} setPropositionHistory={setPropositionHistory} setProposition={setProposition}/>          
+        <MyResetButton setPropositionHistory={setPropositionHistory} setCode={setCode} generateCode={generateCode} setTryCount={setTryCount} setProposition={setProposition}/>
     </>
   );
 }
@@ -136,6 +137,11 @@ function MyValidButton({ proposition, code, tryCount, setTryCount, setPropositio
     if(config.user.isLoggedIn) {
       // L'utilisateur est déjà connecté
       message = "> You are already logged in, " + config.user.name + "-san!";
+      updateHistory(message);
+      return;
+    }
+    if(proposition.length === 0 || proposition.length < config.game.difficulty) {
+      message = "> Error - Please enter a password of " + config.game.difficulty + " unique digits.";
       updateHistory(message);
       return;
     }
@@ -212,10 +218,19 @@ function MyDeleteButton({ proposition, setProposition }: { proposition: string; 
   );
 }
 
-function MyResetBUtton(){
+function MyResetButton({setPropositionHistory, setCode, generateCode, setTryCount, setProposition}: {setPropositionHistory: (value: Array<string> | ((prev: Array<string>) => Array<string>)) => void; setCode: (value: string) => void; generateCode: () => string; setTryCount: (value: number) => void; setProposition: (value: string) => void}) {
   function handleClick() {
     // Ce bouton a pour but de réinitiliser le jeu sans rafraichir la page.
+    setPropositionHistory(Array<string>());
+    setCode(generateCode());
+    setTryCount(1);
+    setProposition("");
+    config.user.isLoggedIn = false;
   }
+
+  return (
+    <button className="interface reset" onClick={handleClick}>RESET</button>
+  );
 }
 
 export default Computer;
