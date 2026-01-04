@@ -8,4 +8,9 @@ const game = {
   maxTryCount: 10,
 }
 
-export default {user, game};
+const screen = {
+  minfontsize: 10,
+  fontsizecoeff: 0.05,
+};
+
+export default {user, game, screen};

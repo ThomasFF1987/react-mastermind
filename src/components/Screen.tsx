@@ -1,9 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-
-const screenconfig = {
-  minfontsize: 10,
-  fontsizecoeff: 0.05,
-};
+import config from "./Configuration";
 
 function Screen({ children }: { children: React.ReactNode }) {
   const screenRef = useRef<HTMLDivElement>(null);
@@ -13,8 +9,8 @@ function Screen({ children }: { children: React.ReactNode }) {
     function updateFontSize() {
       if (screenRef.current) {
         const height = screenRef.current.clientHeight;
-        const newheight = height * screenconfig.fontsizecoeff;
-        if(newheight < screenconfig.minfontsize) setFontSize(screenconfig.minfontsize);
+        const newheight = height * config.screen.fontsizecoeff;
+        if(newheight < config.screen.minfontsize) setFontSize(config.screen.minfontsize);
         else setFontSize(newheight);
       }
     }

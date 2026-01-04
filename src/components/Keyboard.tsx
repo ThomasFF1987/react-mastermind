@@ -55,7 +55,7 @@ function MyValidButton({ proposition, code, tryCount, setTryCount, setPropositio
   function handleClick() {
     let message : string = "";
     if(proposition.length === 0 || proposition.length < config.game.difficulty) {
-      message = ">ERROR - PLEASE ENTER A CODE OF " + config.game.difficulty + " UNIQUE DIGITS.";
+      message = "> Error - Please enter a password of " + config.game.difficulty + " unique digits.";
       updateHistory(message);
       return;
     }

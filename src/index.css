@@ -116,12 +116,14 @@ button:focus-visible {
   margin-bottom: 2px;
   margin-left: 0px;
   user-select: none;
+  caret-color: transparent;
   outline: none;
 }
 
 .history p{
   color: rgb(0, 255, 0);
   font-weight: bold;
+  caret-color: transparent;
 }
 
 .game-keyboard {
@@ -180,4 +182,15 @@ p.ascii-art {
   line-height: 90%;
   margin-bottom: 20px;
   user-select: none;
+}
+
+.cursor {
+  display: inline-block;
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  0%   { opacity: 1; }
+  50%  { opacity: 0; }
+  100% { opacity: 1; }
 }

@@ -47,7 +47,7 @@ function MyEntryHistory({propositionHistory}: {propositionHistory: Array<string>
 ......██▒█▒███▀</p>
         <p>{'>'} Nintando Entertainement \*</p>
         <p>{'>'} Main Server Login Interface</p>
-        <br/>
+        <p>{'>'}</p>
         <p>{'>'} Welcome {config.user.name}-san,</p>
         <p>{'>'} Please enter your {config.game.difficulty} unique digits password.</p>
         </>
@@ -66,12 +66,14 @@ function MyCurrentEntry({proposition, tryCount}: {proposition: string; tryCount:
   return(
     <>
     {
-      proposition.length === 0 && tryCount === 1 ?(
-        <p>Enter password: _</p>
+      config.user.isLoggedIn ? (
+        <p>{'>'}</p>
+      ) : proposition.length === 0 && tryCount === 1 ?(
+        <p>{'>'} Enter password:<span className="cursor">_</span></p>
       ) : proposition.length === config.game.difficulty ? (
-        <p>Enter password: {proposition}</p>
+        <p>{'>'} Enter password:{proposition}</p>
       ) : (
-        <p>Enter password: {proposition}_</p>
+        <p>{'>'} Enter password:{proposition}<span className="cursor">_</span></p>
       )
     }
     </>
@@ -131,8 +133,9 @@ function MyValidButton({ proposition, code, tryCount, setTryCount, setPropositio
 
   function handleClick() {
     let message : string = "";
-    if(proposition.length === 0 || proposition.length < config.game.difficulty) {
-      message = ">ERROR - PLEASE ENTER A CODE OF " + config.game.difficulty + " UNIQUE DIGITS.";
+    if(config.user.isLoggedIn) {
+      // L'utilisateur est déjà connecté
+      message = "> You are already logged in, " + config.user.name + "-san!";
       updateHistory(message);
       return;
     }
@@ -141,15 +144,22 @@ function MyValidButton({ proposition, code, tryCount, setTryCount, setPropositio
     const result = checkProposition(proposition, code);
     
     if(result.nbGoodPlace === config.game.difficulty){
-      message = "> "+tryCount +"/"+ config.game.maxTryCount + "-" + proposition + ": Success - You are logged in!";
+      // Affichage d'un message de succès si le code est correct
+      message = "> "+tryCount +"/"+ config.game.maxTryCount + "-" + proposition + ": Success";
+      updateHistory(message);
+      message = "> Access Granted. You're logged in, " + config.user.name + "-san!";
+      updateHistory(message);
       config.user.isLoggedIn = true;
     } else{
+      // Affichage d'un message d'erreur si le code est incorrect
       if(tryCount < config.game.maxTryCount)
         message = "> "+tryCount +"/"+ config.game.maxTryCount + "-" + proposition + ": Fail - Result: " + result.result;
       else
         message = "> "+tryCount +"/"+ config.game.maxTryCount + "-" + proposition + ": Fail - Password was " + code + " - Account locked.";
+      
+      updateHistory(message);
     }
-    updateHistory(message);
+    
   }
 
   function checkProposition(proposition: string, code: string) {
@@ -200,6 +210,12 @@ function MyDeleteButton({ proposition, setProposition }: { proposition: string; 
   return (
     <button className="interface delete" onClick={handleClick}>C</button>
   );
+}
+
+function MyResetBUtton(){
+  function handleClick() {
+    // Ce bouton a pour but de réinitiliser le jeu sans rafraichir la page.
+  }
 }
 
 export default Computer;
