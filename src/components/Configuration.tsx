@@ -1,6 +1,7 @@
 const user = {
   name: 'Shigeru',
   isLoggedIn: false,
+  isLocked: false,
 };
 
 const game = {
@@ -13,4 +14,8 @@ const screen = {
   fontsizecoeff: 0.05,
 };
 
-export default {user, game, screen};
+const texts = {
+  welcomeMessage: "Welcome to Mastermind Login System!",
+}
+
+export default {user, game, screen, texts};

@@ -1,11 +1,9 @@
+import { useGame } from "../contexts/useGame";
 
-import config from "./Configuration";
-
-function Keyboard({ proposition, code, tryCount, setTryCount, setProposition, setPropositionHistory }: { proposition: string; code: string; tryCount: number; setTryCount: (value: number) => void; setProposition: (value: string) => void; setPropositionHistory: (value: Array<string> | ((prev: Array<string>) => Array<string>)) => void }){
+function Keyboard(){
+  
   return (
-    <div className="game-keyboard">
-      <Board proposition={proposition} code={code} tryCount={tryCount} setTryCount={setTryCount} setProposition={setProposition} setPropositionHistory={setPropositionHistory} />
-    </div>
+      <Board />
   );
 }
 
@@ -15,113 +13,50 @@ function Square({value, onSquareClick} : {value: number | string, onSquareClick 
   );
 }
 
-function Board({ proposition, code, tryCount, setTryCount, setProposition, setPropositionHistory }: { proposition: string; code: string; tryCount: number; setTryCount: (value: number) => void; setProposition: (value: string) => void; setPropositionHistory: (value: Array<string> | ((prev: Array<string>) => Array<string>)) => void }) {
-  
-  function handleClick(value: number) {
-    if (proposition.length < config.game.difficulty) {
-      setProposition(proposition + value.toString());
-    }
+function Board() {
+
+  const { state, dispatch } = useGame();
+    
+  if (!dispatch) {
+    return null;
   }
   
   return (
     <>
-        <Square value='1' onSquareClick={ async () => handleClick(1)} />
-        <Square value='2' onSquareClick={ async () => handleClick(2)} />
-        <Square value='3' onSquareClick={ async () => handleClick(3)} />
-        <Square value='4' onSquareClick={ async () => handleClick(4)} />
-        <Square value='5' onSquareClick={ async () => handleClick(5)} />
-        <Square value='6' onSquareClick={ async () => handleClick(6)} />
-        <Square value='7' onSquareClick={ async () => handleClick(7)} />
-        <Square value='8' onSquareClick={ async () => handleClick(8)} />
-        <Square value='9' onSquareClick={ async () => handleClick(9)} />
-        <MyDeleteButton proposition={proposition} setProposition={setProposition}/>
-        <Square value='0' onSquareClick={ async () => handleClick(0)}/>
-        <MyValidButton proposition={proposition} code={code} tryCount={tryCount} setTryCount={setTryCount} setPropositionHistory={setPropositionHistory} setProposition={setProposition}/>          
+      <div className="game-keyboard">
+        <Square value='1' onSquareClick={ async () => dispatch({type: "ADD_DIGIT", value: 1})} />
+        <Square value='2' onSquareClick={ async () => dispatch({type: "ADD_DIGIT", value: 2})} />
+        <Square value='3' onSquareClick={ async () => dispatch({type: "ADD_DIGIT", value: 3})} />
+        <Square value='4' onSquareClick={ async () => dispatch({type: "ADD_DIGIT", value: 4})} />
+        <Square value='5' onSquareClick={ async () => dispatch({type: "ADD_DIGIT", value: 5})} />
+        <Square value='6' onSquareClick={ async () => dispatch({type: "ADD_DIGIT", value: 6})} />
+        <Square value='7' onSquareClick={ async () => dispatch({type: "ADD_DIGIT", value: 7})} />
+        <Square value='8' onSquareClick={ async () => dispatch({type: "ADD_DIGIT", value: 8})} />
+        <Square value='9' onSquareClick={ async () => dispatch({type: "ADD_DIGIT", value: 9})} />
+        <MyDeleteButton onButtonClick={async () => dispatch({type: "DELETE_DIGIT"})} />
+        <Square value='0' onSquareClick={ async () => dispatch({type: "ADD_DIGIT", value: 0})} />
+        <MyValidButton onButtonClick={async () => dispatch({type: "VALIDATE", value : state.proposition})}/>          
+        <MyResetButton onButtonClick={async () => dispatch({type: "RESET"})}/>
+      </div>
     </>
   );
 }
 
-function MyValidButton({ proposition, code, tryCount, setTryCount, setPropositionHistory, setProposition }: { proposition: string; code: string; tryCount: number; setTryCount: (value: number) => void; setPropositionHistory: (value: Array<string> | ((prev: Array<string>) => Array<string>)) => void; setProposition: (value: string) => void }) {
-
-  function updateHistory(result: string): void {
-    setPropositionHistory((prev: string[]) => {
-      const updated = [...prev, result];
-      //console.log("HISTORY UPDATED:", updated);
-      return updated;
-    });
-    setProposition("");
-  }
-
-  function handleClick() {
-    let message : string = "";
-    if(proposition.length === 0 || proposition.length < config.game.difficulty) {
-      message = "> Error - Please enter a password of " + config.game.difficulty + " unique digits.";
-      updateHistory(message);
-      return;
-    }
-    //console.log("SEND CODE:", proposition);
-    setTryCount(tryCount + 1);
-    const result = checkProposition(proposition, code);
-    
-    if(result.nbGoodPlace === config.game.difficulty){
-      message = "> "+tryCount +"/"+ config.game.maxTryCount + "-" + proposition + ": Success - You are logged in!";
-      config.user.isLoggedIn = true;
-    } else{
-      if(tryCount < config.game.maxTryCount)
-        message = "> "+tryCount +"/"+ config.game.maxTryCount + "-" + proposition + ": Fail - Result: " + result.result;
-      else
-        message = "> "+tryCount +"/"+ config.game.maxTryCount + "-" + proposition + ": Fail - Password was " + code + " - Account locked.";
-    }
-    updateHistory(message);
-  }
-
-  function checkProposition(proposition: string, code: string) {
-    let nbGoodPlace : number= 0;
-    let nbGoodNumber : number = 0;
-    let result : string = "";
-
-    if(proposition === code) {
-      return {nbGoodPlace: proposition.length, nbGoodNumber: proposition.length};
-    }
-
-    for(let i : number = 0; i < proposition.length; i++) {
-      for(let j : number = 0; j < code.length; j++) {
-        if(proposition[i] === code[j]) {
-          if(i==j){
-            nbGoodPlace++;
-            result += "!";
-          }
-          else{
-            nbGoodNumber++;
-            result += "?";
-          }
-          j=code.length;
-        }
-        else{
-          if(j === code.length -1){
-            result += "X";
-          }
-        }
-      }
-    }
-
-    return {nbGoodPlace, nbGoodNumber, result};
-  }
-
+function MyValidButton({ onButtonClick }: { onButtonClick: () => void }) {
   return (
-    <button className="interface validate" onClick={handleClick}>V</button>
+    <button className="interface validate" onClick={onButtonClick}>V</button>
   );
 }
 
-function MyDeleteButton({ proposition, setProposition }: { proposition: string; setProposition: (value: string) => void }) {
-
-  function handleClick() {
-    //console.log("DELETE LAST NUMBER...");
-    setProposition(proposition.slice(0, -1));
-  }
-
+function MyDeleteButton({ onButtonClick }: { onButtonClick: () => void }) {
   return (
-    <button className="interface delete" onClick={handleClick}>C</button>
+    <button className="interface delete" onClick={onButtonClick}>C</button>
+  );
+}
+
+function MyResetButton({onButtonClick}: {onButtonClick: () => void}) {
+  return (
+    <button className="interface reset" onClick={onButtonClick}>RESET</button>
   );
 }
 

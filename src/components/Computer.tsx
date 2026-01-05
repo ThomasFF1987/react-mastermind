@@ -1,33 +1,25 @@
-import { useState } from "react";
+import { GameContext } from "../contexts/GameContext";
 import Screen from "./Screen";
 import config from "./Configuration";
+import Keyboard from "./Keyboard";
+import { useContext } from "react";
 
 function Computer() {
-  const [code, setCode] = useState(() => generateCode()); // I know you are trying to cheat. :)
-  const [proposition, setProposition] = useState("");
-  const [propositionHistory, setPropositionHistory] = useState(Array<string>());
-  const [tryCount, setTryCount] = useState(1);
-
-  function generateCode() : string {
-    const digits = Array.from({ length: 10 }, (_, i) => i);
-    let newcode : string = "";
-    while (newcode.length < config.game.difficulty) {
-      const randomIndex = Math.floor(Math.random() * digits.length);
-      const digit = digits.splice(randomIndex, 1)[0];
-      newcode += digit.toString();
-    }
-    //console.log("Generated Code (for debugging):", newcode);
-    return newcode;
+  const game = useContext(GameContext);
+  
+  if (!game) {
+    console.error("GameContext is null");
+    return null;
   }
-
+  
   return (
     <>
       <div className="game-computer">
         <Screen>
-          <MyEntryHistory propositionHistory={propositionHistory} />
-          <MyCurrentEntry proposition={proposition} tryCount={tryCount} />
+          <MyEntryHistory propositionHistory={game.state.propositionHistory} />
+          <MyCurrentEntry proposition={game.state.proposition} tryCount={game.state.tryCount} />
         </Screen>
-        <GameKeyboard proposition={proposition} code={code} tryCount={tryCount} setTryCount={setTryCount} setProposition={setProposition} setPropositionHistory={setPropositionHistory} setCode={setCode} generateCode={generateCode} />
+        <Keyboard/>
       </div>
     </>
   )
@@ -45,7 +37,7 @@ function MyEntryHistory({propositionHistory}: {propositionHistory: Array<string>
 ......█▄▐▌▄█▄┘██<br/>
 ......└▄▄▄▄▄┘███<br/>
 ......██▒█▒███▀</p>
-        <p>{'>'} Nintando Entertainement \*</p>
+        <p>{'>'} Mintendo Entertainement \*</p>
         <p>{'>'} Main Server Login Interface</p>
         <p>{'>'}</p>
         <p>{'>'} Welcome {config.user.name}-san,</p>
@@ -78,159 +70,6 @@ function MyCurrentEntry({proposition, tryCount}: {proposition: string; tryCount:
     }
     </>
   )
-}
-
-function GameKeyboard({ proposition, code, tryCount, setTryCount, setProposition, setPropositionHistory, setCode, generateCode }: { proposition: string; code: string; tryCount: number; setTryCount: (value: number) => void; setProposition: (value: string) => void; setPropositionHistory: (value: Array<string> | ((prev: Array<string>) => Array<string>)) => void; setCode: (value: string) => void; generateCode: () => string }){
-  return (
-    <div className="game-keyboard">
-      <Board proposition={proposition} code={code} tryCount={tryCount} setTryCount={setTryCount} setProposition={setProposition} setPropositionHistory={setPropositionHistory} setCode={setCode} generateCode={generateCode} />
-    </div>
-  );
-}
-
-function Square({value, onSquareClick} : {value: number | string, onSquareClick : (value:number|string) => {}}) {
-  return (
-    <button className="square" onClick={() =>onSquareClick(value)}>{value}</button>
-  );
-}
-
-function Board({ proposition, code, tryCount, setTryCount, setProposition, setPropositionHistory, setCode, generateCode }: { proposition: string; code: string; tryCount: number; setTryCount: (value: number) => void; setProposition: (value: string) => void; setPropositionHistory: (value: Array<string> | ((prev: Array<string>) => Array<string>)) => void; setCode: (value: string) => void; generateCode: () => string }) {
-  
-  function handleClick(value: number) {
-    if (proposition.length < config.game.difficulty) {
-      setProposition(proposition + value.toString());
-    }
-  }
-  
-  return (
-    <>
-        <Square value='1' onSquareClick={ async () => handleClick(1)} />
-        <Square value='2' onSquareClick={ async () => handleClick(2)} />
-        <Square value='3' onSquareClick={ async () => handleClick(3)} />
-        <Square value='4' onSquareClick={ async () => handleClick(4)} />
-        <Square value='5' onSquareClick={ async () => handleClick(5)} />
-        <Square value='6' onSquareClick={ async () => handleClick(6)} />
-        <Square value='7' onSquareClick={ async () => handleClick(7)} />
-        <Square value='8' onSquareClick={ async () => handleClick(8)} />
-        <Square value='9' onSquareClick={ async () => handleClick(9)} />
-        <MyDeleteButton proposition={proposition} setProposition={setProposition}/>
-        <Square value='0' onSquareClick={ async () => handleClick(0)}/>
-        <MyValidButton proposition={proposition} code={code} tryCount={tryCount} setTryCount={setTryCount} setPropositionHistory={setPropositionHistory} setProposition={setProposition}/>          
-        <MyResetButton setPropositionHistory={setPropositionHistory} setCode={setCode} generateCode={generateCode} setTryCount={setTryCount} setProposition={setProposition}/>
-    </>
-  );
-}
-
-function MyValidButton({ proposition, code, tryCount, setTryCount, setPropositionHistory, setProposition }: { proposition: string; code: string; tryCount: number; setTryCount: (value: number) => void; setPropositionHistory: (value: Array<string> | ((prev: Array<string>) => Array<string>)) => void; setProposition: (value: string) => void }) {
-
-  function updateHistory(result: string): void {
-    setPropositionHistory((prev: string[]) => {
-      const updated = [...prev, result];
-      //console.log("HISTORY UPDATED:", updated);
-      return updated;
-    });
-    setProposition("");
-  }
-
-  function handleClick() {
-    let message : string = "";
-    if(config.user.isLoggedIn) {
-      // L'utilisateur est déjà connecté
-      message = "> You are already logged in, " + config.user.name + "-san!";
-      updateHistory(message);
-      return;
-    }
-    if(proposition.length === 0 || proposition.length < config.game.difficulty) {
-      message = "> Error - Please enter a password of " + config.game.difficulty + " unique digits.";
-      updateHistory(message);
-      return;
-    }
-    //console.log("SEND CODE:", proposition);
-    setTryCount(tryCount + 1);
-    const result = checkProposition(proposition, code);
-    
-    if(result.nbGoodPlace === config.game.difficulty){
-      // Affichage d'un message de succès si le code est correct
-      message = "> "+tryCount +"/"+ config.game.maxTryCount + "-" + proposition + ": Success";
-      updateHistory(message);
-      message = "> Access Granted. You're logged in, " + config.user.name + "-san!";
-      updateHistory(message);
-      config.user.isLoggedIn = true;
-    } else{
-      // Affichage d'un message d'erreur si le code est incorrect
-      if(tryCount < config.game.maxTryCount)
-        message = "> "+tryCount +"/"+ config.game.maxTryCount + "-" + proposition + ": Fail - Result: " + result.result;
-      else
-        message = "> "+tryCount +"/"+ config.game.maxTryCount + "-" + proposition + ": Fail - Password was " + code + " - Account locked.";
-      
-      updateHistory(message);
-    }
-    
-  }
-
-  function checkProposition(proposition: string, code: string) {
-    let nbGoodPlace : number= 0;
-    let nbGoodNumber : number = 0;
-    let result : string = "";
-
-    if(proposition === code) {
-      return {nbGoodPlace: proposition.length, nbGoodNumber: proposition.length};
-    }
-
-    for(let i : number = 0; i < proposition.length; i++) {
-      for(let j : number = 0; j < code.length; j++) {
-        if(proposition[i] === code[j]) {
-          if(i==j){
-            nbGoodPlace++;
-            result += "!";
-          }
-          else{
-            nbGoodNumber++;
-            result += "?";
-          }
-          j=code.length;
-        }
-        else{
-          if(j === code.length -1){
-            result += "X";
-          }
-        }
-      }
-    }
-
-    return {nbGoodPlace, nbGoodNumber, result};
-  }
-
-  return (
-    <button className="interface validate" onClick={handleClick}>V</button>
-  );
-}
-
-function MyDeleteButton({ proposition, setProposition }: { proposition: string; setProposition: (value: string) => void }) {
-
-  function handleClick() {
-    //console.log("DELETE LAST NUMBER...");
-    setProposition(proposition.slice(0, -1));
-  }
-
-  return (
-    <button className="interface delete" onClick={handleClick}>C</button>
-  );
-}
-
-function MyResetButton({setPropositionHistory, setCode, generateCode, setTryCount, setProposition}: {setPropositionHistory: (value: Array<string> | ((prev: Array<string>) => Array<string>)) => void; setCode: (value: string) => void; generateCode: () => string; setTryCount: (value: number) => void; setProposition: (value: string) => void}) {
-  function handleClick() {
-    // Ce bouton a pour but de réinitiliser le jeu sans rafraichir la page.
-    setPropositionHistory(Array<string>());
-    setCode(generateCode());
-    setTryCount(1);
-    setProposition("");
-    config.user.isLoggedIn = false;
-  }
-
-  return (
-    <button className="interface reset" onClick={handleClick}>RESET</button>
-  );
 }
 
 export default Computer;
