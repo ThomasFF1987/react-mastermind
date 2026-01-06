@@ -1,6 +1,6 @@
 import { createContext, useReducer } from "react";
-import { keyboardReducer, initialState } from "./keyboardReducer";
-import type { GameState, KeyboardAction } from "./gameTypes";
+import { keyboardReducer, createInitialState } from "../reducers/keyboardReducer";
+import type { GameState, KeyboardAction } from "../maps/gameMaps";
 
 type GameContextType = {
   state: GameState;
@@ -10,7 +10,7 @@ type GameContextType = {
 export const GameContext = createContext<GameContextType | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(keyboardReducer, initialState);
+  const [state, dispatch] = useReducer(keyboardReducer, createInitialState());
 
   return (
     <GameContext.Provider value={{ state, dispatch }}>

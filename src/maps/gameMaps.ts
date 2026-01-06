@@ -3,6 +3,15 @@ export interface GameState {
   code: string;
   tryCount: number;
   propositionHistory: string[];
+  game : {
+    difficulty: number;
+    maxTryCount: number;
+  };
+  user: {
+    name: string;
+    isLoggedIn: boolean;
+    isLocked: boolean;
+  };
 }
 
 export type KeyboardAction =
