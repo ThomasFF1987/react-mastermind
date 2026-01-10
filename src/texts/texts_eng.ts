@@ -27,16 +27,14 @@ const texts = {
   accessGranted: (name: string) =>
     `Access Granted. You're logged in, ${name}-san!`,
   failWithLockedPassword: (
-    tryCount: number,
-    maxTryCount: number,
+    proposition: string,
     code: string
-  ) => `${tryCount}/${maxTryCount} - Fail - Password was ${code} - Account locked.`,
+  ) => ` = ${proposition} - Fail - Password was ${code} - Account locked.`,
   attemptResult: (
     tryCount: number,
     maxTryCount: number,
-    proposition: string,
-    result: string
-  ) => `${tryCount}/${maxTryCount} - ${proposition}: Fail - Result: ${result}`,
+    proposition: string
+  ) => ` = ${proposition} - Fail - ${maxTryCount-tryCount} ${maxTryCount-tryCount === 1 ? 'try' : 'tries'} left...`,
   attemptSuccess: (
     tryCount: number,
     maxTryCount: number,

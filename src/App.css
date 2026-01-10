@@ -41,3 +41,104 @@
   color: #888;
 }
 
+.hint-display {
+  display: inline-flex;
+  margin-left: 10px;
+}
+
+.hint-circle {
+  width: clamp(4px, 1.5vw, 30px);
+  height: clamp(4px, 1.5vw, 30px);
+  border-radius: 50%;
+}
+
+.hint-circle.correctlyPlaced {
+  background-color: #4CAF50; /* Vert */
+}
+
+.hint-circle.wronglyPlaced {
+  background-color: #FFC107; /* Orange */
+}
+
+.hint-circle.notInCode {
+  background-color: #F44336; /* Rouge */
+}
+
+.game-screen {
+  background-color: #282c34;
+  color: #61dafb;
+  font-family: 'Share Tech Mono', monospace;
+  min-height: 400px;
+  padding: 20px;
+  border-radius: 8px;
+  overflow-y: auto;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.game-keyboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.square {
+  background-color: #444;
+  color: #eee;
+  border: 1px solid #666;
+  padding: 15px;
+  font-size: 1.5em;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.square:hover {
+  background-color: #666;
+}
+
+.interface {
+  background-color: #666;
+  color: #eee;
+  border: 1px solid #888;
+  padding: 15px;
+  font-size: 1.2em;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.interface:hover {
+  background-color: #888;
+}
+
+.interface.validate {
+  background-color: #4CAF50;
+}
+
+.interface.validate:hover {
+  background-color: #66BB6A;
+}
+
+.interface.delete {
+  background-color: #F44336;
+}
+
+.interface.delete:hover {
+  background-color: #EF5350;
+}
+
+.interface.reset {
+  background-color: #FFC107;
+}.interface.reset:hover {
+  background-color: #FFD54F;
+}
+
+.cursor {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  from, to { visibility: hidden; }
+  50% { visibility: visible; }
+}

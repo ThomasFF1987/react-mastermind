@@ -1,8 +1,17 @@
+export type HintResult = 'correctlyPlaced' | 'wronglyPlaced' | 'notInCode';
+
+export interface CheckPropositionResult {
+  nbGoodPlace: number;
+  nbGoodNumber: number;
+  hintResults: HintResult[];
+}
+
 export interface GameState {
   proposition: string;
   code: string;
   tryCount: number;
   propositionHistory: string[];
+  hintResults: HintResult[][];
   game : {
     difficulty: number;
     maxTryCount: number;
