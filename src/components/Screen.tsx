@@ -1,6 +1,6 @@
 import { useGame } from "../contexts/useGame";
 import texts from "../texts/texts_eng";
-import type { HintResult } from "../maps/gameMaps";
+import type { GameState, HintResult } from "../maps/gameMaps";
 
 function Screen(){
   const { state } = useGame();
@@ -13,37 +13,33 @@ function Screen(){
   return (
     <>
       <div className="game-screen" >
-        <MyEntryHistory propositionHistory={state.propositionHistory} hintResults={state.hintResults} user={state.user} game={state.game} />
-        <MyCurrentEntry proposition={state.proposition} tryCount={state.tryCount} user={state.user} game={state.game} />
+        <MyEntryHistory state={state}/>
+        <MyCurrentEntry state={state}/>
       </div>
     </>
   );
 }
 
-interface MyEntryHistoryProps {
-  propositionHistory: string[];
-  hintResults: HintResult[][];
-  user: any;
-  game: any;
-}
-
-function MyEntryHistory({ propositionHistory, hintResults, user, game }: MyEntryHistoryProps) {
+function MyEntryHistory({ state }: { state : GameState }) {
   return(
     <>
     <div className = "history">
-      {propositionHistory.length >= 0 && (
+      {state.propositionHistory.length >= 0 && (
         <>
           <p className="ascii-art" dangerouslySetInnerHTML={{ __html: texts.asciiArt.replace(/\n/g, "<br/>") }} />
-          <p>{texts.promptArrow} {texts.welcomeHeader}</p>
-          <p>{texts.promptArrow} {texts.loginInterface}</p>
-          <p>{texts.promptArrow} {texts.welcomeUser(user.name)}</p>
-          <p>{texts.welcomeEnterPassword(game.difficulty)}</p>
+          <p>{texts.promptArrow}{texts.welcomeHeader}</p>
+          <p>{texts.promptArrow}{texts.loginInterface}</p>
+          <p>{texts.promptArrow}{texts.welcomeUserIntro}</p>
+          <p>{texts.promptArrow}{texts.welcomeEnterUserId}</p>
+          {state.user.name != "" ? (
+            <p>{texts.promptArrow}{texts.welcomeEnterPassword(state.user.name, state.game.difficulty)}</p>
+          ) : null}
         </>
       )}
-      {propositionHistory.map((entry, index) => (
+      {state.propositionHistory.map((entry, index) => (
         <p key={index}>
           {texts.promptArrow}
-          {hintResults[index] && <HintDisplay hints={hintResults[index]} />}
+          {state.hintResults[index] && <HintDisplay hints={state.hintResults[index]} />}
           {entry}
         </p>
       ))}
@@ -62,32 +58,61 @@ function HintDisplay({ hints }: { hints: HintResult[] }) {
   );
 }
 
-function MyCurrentEntry({ proposition, tryCount, user, game }: { proposition: string; tryCount: number; user: any; game: any }) {
-  return(
-    <>
-    {
-      user.isLoggedIn ? (
-        <p>{texts.promptArrow}</p>
-      ) : proposition.length === 0 && tryCount === 0 ?(
-        <p>
-          {texts.promptArrow} {texts.enterPasswordLabel}
-          <span className="cursor">_</span>
-        </p>
-      ) : proposition.length === game.difficulty ? (
-        <p>
-          {texts.promptArrow} {texts.enterPasswordLabel}
-          {proposition}
-        </p>
-      ) : (
-        <p>
-          {texts.promptArrow} {texts.enterPasswordLabel}
-          {proposition}
-          <span className="cursor">_</span>
-        </p>
+function MyCurrentEntry({ state }: { state : GameState }) {
+  switch(state.phase){
+    case "Game":
+      return(
+        <>
+        {
+          (state.user.isLoggedIn || state.user.isLocked) ? (
+            <p>
+              {texts.promptArrow} {texts.pressRestartGameLabel}
+            </p>
+          ) : state.proposition.length === 0 && state.tryCount === 0 ?(
+            <p>
+              {texts.promptArrow} {texts.enterPasswordLabel}
+              <span className="cursor">_</span>
+            </p>
+          ) : state.proposition.length === state.game.difficulty ? (
+            <p>
+              {texts.promptArrow} {texts.enterPasswordLabel}
+              {state.proposition}
+            </p>
+          ) : (
+            <p>
+              {texts.promptArrow} {texts.enterPasswordLabel}
+              {state.proposition}
+              <span className="cursor">_</span>
+            </p>
+          )
+        }
+        </>
       )
-    }
-    </>
-  )
+    case "Setup":
+      return(
+        <>
+        {
+          (state.proposition.length === 0) ? (<p>
+            {texts.promptArrow} {texts.enterUserIdLabel}
+            <span className="cursor">_</span>
+          </p>
+          ) : (
+            <p>
+              {texts.promptArrow} {texts.enterUserIdLabel}
+              {state.proposition}
+            </p>
+          )
+        }
+        </>
+      )
+    default:
+      return(
+      <> 
+      </>
+      )
+      break;
+  }
+  
 }
 
 export default Screen;

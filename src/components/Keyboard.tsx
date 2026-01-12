@@ -1,4 +1,5 @@
 import { useGame } from "../contexts/useGame";
+import texts from "../texts/texts_eng";
 
 function Keyboard() {
 
@@ -38,19 +39,19 @@ function Square({value, onSquareClick} : {value: number | string, onSquareClick 
 
 function MyValidButton({ onButtonClick }: { onButtonClick: () => void }) {
   return (
-    <button className="interface validate" onClick={onButtonClick}>V</button>
+    <button className="interface validate" onClick={onButtonClick}>{texts.validButton}</button>
   );
 }
 
 function MyDeleteButton({ onButtonClick }: { onButtonClick: () => void }) {
   return (
-    <button className="interface delete" onClick={onButtonClick}>C</button>
+    <button className="interface delete" onClick={onButtonClick}>{texts.cancelButton}</button>
   );
 }
 
 function MyResetButton({onButtonClick}: {onButtonClick: () => void}) {
   return (
-    <button className="interface reset" onClick={onButtonClick}>RESET</button>
+    <button className="interface reset" onClick={onButtonClick}>{texts.resetButton}</button>
   );
 }
 

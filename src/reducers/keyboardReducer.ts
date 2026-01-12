@@ -2,17 +2,36 @@ import type { GameState, HintResult, KeyboardAction, CheckPropositionResult } fr
 import texts from "../texts/texts_eng";
 
 export const createInitialState = (): GameState => ({
+  phase: "Setup",
   proposition: "",
   tryCount: 1,
-  code: generateCode(5),
+  code: "",
   propositionHistory: [],
   hintResults: [],
   game : {
-    difficulty: 5,
+    difficulty: 0,
     maxTryCount: 10,
   },
   user: {
-    name: 'Shigeru',
+    name: '',
+    isLoggedIn: false,
+    isLocked: false,
+  },
+});
+
+export const createSetupState = (codelength : number, userName : string):GameState => ({
+  phase: "Game",
+  proposition: "",
+  tryCount: 1,
+  code: generateCode(codelength),
+  propositionHistory: [],
+  hintResults: [],
+  game : {
+    difficulty: codelength,
+    maxTryCount: 10,
+  },
+  user: {
+    name: userName,
     isLoggedIn: false,
     isLocked: false,
   },
@@ -21,14 +40,23 @@ export const createInitialState = (): GameState => ({
 export function keyboardReducer( state: GameState, action: KeyboardAction ): GameState {
   switch (action.type) {
     case "ADD_DIGIT":
-      if(state.proposition.length >= state.game.difficulty) {
-        return state; // Ne pas ajouter plus de chiffres que la difficulté
-      }
+      if(state.phase == "Game"){
+        if(state.proposition.length >= state.game.difficulty) {
+          return state; // Ne pas ajouter plus de chiffres que la difficulté
+        }
 
-      return {
-        ...state,
-        proposition: state.proposition + action.value,
-      };
+        return {
+          ...state,
+          proposition: state.proposition + action.value,
+        };
+      }
+      else{
+        return {
+          ...state,
+          proposition: action.value.toString(),
+        };
+      }
+      
 
     case "DELETE_DIGIT":
       return {
@@ -37,75 +65,13 @@ export function keyboardReducer( state: GameState, action: KeyboardAction ): Gam
       };
 
     case "VALIDATE":
-      let hintMessage : string = "";
-      let newTryCount : number = state.tryCount;
-      let loggedIn : boolean = state.user.isLoggedIn;
-      let lockedStatus : boolean = state.user.isLocked;
-      let currentHintResults: HintResult[] = [];
-      
-      if(state.user.isLoggedIn) {
-        // L'utilisateur est déjà connecté
-        hintMessage = `${texts.alreadyLoggedIn(state.user.name)}`;
-        currentHintResults = [];
+      if(state.phase == "Game"){
+        return pressValidDuringGame(state);
       }
-      else if(state.user.isLocked) {
-        // L'utilisateur n'a pas trouvé le mot de passe et son compte est verrouillé
-        hintMessage = `${texts.accountLocked}`;
-        currentHintResults = [];
+      else if(state.phase == "Setup"){
+        return pressValidDuringSetup(state);
       }
-      else if (state.proposition.length !== state.game.difficulty) {
-        // Proposition invalide
-        hintMessage = `${texts.invalidPasswordLength(state.game.difficulty)}`;
-        currentHintResults = [];
-      }
-      else if (state.proposition === state.code) {
-        loggedIn = true;
-        hintMessage = `${texts.accessGranted(state.user.name)}`;
-        newTryCount += 1;
-        currentHintResults = Array(state.game.difficulty).fill('correctlyPlaced');
-      }
-      else{
-        // Si aucune des conditions précédentes n'est remplie, on vérifie la proposition et on affiche l'indice.
-        const result = checkProposition(state.proposition, state.code);
-        currentHintResults = result.hintResults;
-      
-        if(result.nbGoodPlace === state.game.difficulty){
-          // Affichage d'un message de succès si le code est correct
-          loggedIn = true;
-          hintMessage = `${texts.attemptSuccess(state.tryCount, state.game.maxTryCount, state.proposition)}`;
-          newTryCount += 1;
-        } else{
-          // Affichage d'un message d'erreur si le code est incorrect
-          if(state.tryCount < state.game.maxTryCount){
-            hintMessage = `${texts.attemptResult(state.tryCount, state.game.maxTryCount, state.proposition)}`;
-            newTryCount += 1;
-          }
-          else{
-            lockedStatus = true;
-            hintMessage = `${texts.failWithLockedPassword(state.proposition, state.code)}`;
-            newTryCount += 1;
-          }
-        }
-      }
-
-      return {
-        ...state,
-        user: {
-          ...state.user,
-          isLocked: lockedStatus,
-          isLoggedIn : loggedIn,
-        },
-        propositionHistory: [
-          ...state.propositionHistory,
-          hintMessage,
-        ],
-        hintResults: [
-          ...state.hintResults,
-          currentHintResults,
-        ],
-        proposition: "",
-        tryCount: newTryCount,
-      };
+      return state;
 
     case "RESET":
       return createInitialState();
@@ -159,4 +125,114 @@ function generateCode(codelength:number) : string {
   }
   //console.log("Generated Code (for debugging):", newcode);
   return newcode;
+}
+
+function hasUniqueDigits(proposition: string): boolean {
+  const digits = proposition.split('');
+  const uniqueDigits = new Set(digits);
+  return digits.length === uniqueDigits.size;
+}
+
+function pressValidDuringGame(state : GameState) : GameState {
+  let hintMessage : string = "";
+  let newTryCount : number = state.tryCount;
+  let loggedIn : boolean = state.user.isLoggedIn;
+  let lockedStatus : boolean = state.user.isLocked;
+  let currentHintResults: HintResult[] = [];
+  
+  if(state.user.isLoggedIn) {
+    // L'utilisateur est déjà connecté
+    hintMessage = `${texts.alreadyLoggedIn(state.user.name)}`;
+    currentHintResults = [];
+  }
+  else if(state.user.isLocked) {
+    // L'utilisateur n'a pas trouvé le mot de passe et son compte est verrouillé
+    hintMessage = `${texts.accountLocked}`;
+    currentHintResults = [];
+  }
+  else if (state.proposition.length !== state.game.difficulty) {
+    // Proposition invalide - longueur incorrecte
+    hintMessage = `${texts.invalidPasswordLength(state.game.difficulty)}`;
+    currentHintResults = [];
+  }
+  else if (!hasUniqueDigits(state.proposition)) {
+    // Proposition invalide - chiffres non uniques
+    hintMessage = `${texts.invalidPasswordLength(state.game.difficulty)}`;
+    currentHintResults = [];
+  }
+  else if (state.proposition === state.code) {
+    loggedIn = true;
+    hintMessage = `${texts.attemptSuccess(state.user.name, state.proposition)}`;
+    newTryCount += 1;
+    currentHintResults = Array(state.game.difficulty).fill('correctlyPlaced');
+  }
+  else{
+    // Si aucune des conditions précédentes n'est remplie, on vérifie la proposition et on affiche l'indice.
+    const result = checkProposition(state.proposition, state.code);
+    currentHintResults = result.hintResults;
+  
+    if(result.nbGoodPlace === state.game.difficulty){
+      // Affichage d'un message de succès si le code est correct
+      loggedIn = true;
+      hintMessage = `${texts.attemptSuccess(state.user.name, state.proposition)}`;
+      newTryCount += 1;
+    } else{
+      // Affichage d'un message d'erreur si le code est incorrect
+      if(state.tryCount < state.game.maxTryCount){
+        hintMessage = `${texts.attemptResult(state.tryCount, state.game.maxTryCount, state.proposition)}`;
+        newTryCount += 1;
+      }
+      else{
+        lockedStatus = true;
+        hintMessage = `${texts.failWithLockedPassword(state.proposition, state.code)}`;
+        newTryCount += 1;
+      }
+    }
+  }
+
+  return {
+    ...state,
+    user: {
+      ...state.user,
+      isLocked: lockedStatus,
+      isLoggedIn : loggedIn,
+    },
+    propositionHistory: [
+      ...state.propositionHistory,
+      hintMessage,
+    ],
+    hintResults: [
+      ...state.hintResults,
+      currentHintResults,
+    ],
+    proposition: "",
+    tryCount: newTryCount,
+  };
+
+}
+
+function pressValidDuringSetup(state : GameState) : GameState {
+  let userName = "";
+  let setupDifficulty = 0;
+
+  switch(state.proposition){
+    case "1":
+      userName = "Shigeru";
+      setupDifficulty = 5;
+      return createSetupState(setupDifficulty, userName);
+
+    case "2":
+      userName = "Iwata";
+      setupDifficulty = 6;
+      return createSetupState(setupDifficulty, userName);
+    
+    case "3":
+      userName = "Yamauchi";
+      setupDifficulty = 7;
+      return createSetupState(setupDifficulty, userName);
+
+    default:
+      return createInitialState();
+  }
+
 }

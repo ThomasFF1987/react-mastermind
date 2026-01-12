@@ -17,7 +17,17 @@
 }
 
 html,
-body,
+body {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #222;
+}
+
 #root {
   margin: 0;
   width: 100%;
@@ -48,187 +58,6 @@ h1 {
 }
 
 /* =========================
-   BUTTONS (GLOBAL)
-========================= */
-
-button {
-  margin: 2px;
-  padding: 0.6em 1.2em;
-
-  font-family: inherit;
-  font-size: 1em;
-  font-weight: 500;
-
-  border-radius: 8px;
-  border: 1px solid transparent;
-  background-color: #1a1a1a;
-
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-
-button:hover {
-  border-color: #646cff;
-}
-
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-/* =========================
-   GAME CONTAINER
-========================= */
-
-.game-computer {
-  width: 100%;
-  padding: 50px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  background-color: rgb(85, 83, 72);
-  border-radius: 20px;
-  overflow: hidden;
-
-  box-shadow:
-    0 0 20px rgba(0, 0, 0, 0.2),
-    inset 0 0 30px rgba(255, 255, 255, 0.26);
-}
-
-/* =========================
-   GAME SCREEN
-========================= */
-
-.game-screen {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  padding: 16px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-
-  background-color: #111;
-  color: #0f0;
-  border-radius: 16px;
-  overflow: hidden;
-
-  font-family: 'Courier New', Courier, monospace;
-  text-align: left;
-  font-size: 1.1rem;
-
-  box-shadow:
-    0 0 20px rgba(0, 255, 0, 0.2),
-    inset 0 0 10px rgba(0, 255, 0, 0.3);
-}
-
-.game-screen p,
-.history p {
-  margin: 0 0 2px;
-  font-weight: bold;
-  color: rgb(0, 255, 0);
-
-  user-select: none;
-  caret-color: transparent;
-  outline: none;
-
-  font-size: clamp(8px, 2vw, 36px);
-}
-
-/* =========================
-   KEYBOARD
-========================= */
-
-.game-keyboard {
-  margin-top: 20px;
-  padding: 10px;
-
-  display: grid;
-  grid-template-columns: repeat(3, 60px);
-  grid-template-rows: repeat(5, 60px);
-  gap: 10px;
-  justify-content: center;
-
-  width: max-content;
-  background-color: #111;
-  border-radius: 20px;
-
-  user-select: none;
-}
-
-.game-keyboard button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #fff;
-
-  background-color: #333;
-  border: 2px solid #555;
-  border-radius: 8px;
-
-  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
-}
-
-.game-keyboard button:hover {
-  background-color: #444;
-  transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-.game-keyboard button:active {
-  background-color: #555;
-  transform: translateY(0);
-  box-shadow: none;
-}
-
-/* =========================
-   INTERFACE BUTTONS
-========================= */
-
-.interface.validate {
-  color: #4caf50;
-  border-color: #4caf50;
-}
-
-.interface.delete {
-  color: #fbff00;
-  border-color: #fbff00;
-}
-
-.interface.reset {
-  color: #da301a;
-  border-color: #da301a;
-  grid-column: 1 / -1;
-}
-
-/* =========================
-   ASCII / CURSOR
-========================= */
-
-p.ascii-art {
-  margin-bottom: 20px;
-  line-height: 0.9;
-  font-family: 'Courier New', Courier, monospace;
-  color: #0f0;
-  user-select: none;
-}
-
-.cursor {
-  display: inline-block;
-  animation: blink 1s steps(1) infinite;
-}
-
-@keyframes blink {
-  0%   { opacity: 1; }
-  50%  { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-/* =========================
    LIGHT MODE
 ========================= */
 
@@ -245,4 +74,34 @@ p.ascii-art {
   button {
     background-color: #f9f9f9;
   }
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.app-footer {
+  margin-top: auto;
+  padding: 1rem;
+  text-align: center;
+  color: #888;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.app-footer p {
+  margin: 0;
+  color: #888;
+}
+
+.app-footer .portfolio-link {
+  color: #646cff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.25s;
+}
+
+.app-footer .portfolio-link:hover {
+  color: #535bf2;
+  text-decoration: underline;
 }

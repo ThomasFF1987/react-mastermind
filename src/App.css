@@ -5,6 +5,13 @@
   text-align: center;
 }
 
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -43,7 +50,7 @@
 
 .hint-display {
   display: inline-flex;
-  margin-left: 10px;
+  margin-left: 0px;
 }
 
 .hint-circle {
@@ -62,26 +69,6 @@
 
 .hint-circle.notInCode {
   background-color: #F44336; /* Rouge */
-}
-
-.game-screen {
-  background-color: #282c34;
-  color: #61dafb;
-  font-family: 'Share Tech Mono', monospace;
-  min-height: 400px;
-  padding: 20px;
-  border-radius: 8px;
-  overflow-y: auto;
-  text-align: left;
-  margin-bottom: 20px;
-}
-
-.game-keyboard {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  max-width: 300px;
-  margin: 0 auto;
 }
 
 .square {
@@ -114,31 +101,167 @@
 
 .interface.validate {
   background-color: #4CAF50;
+  border-color: #378039;
 }
 
 .interface.validate:hover {
   background-color: #66BB6A;
 }
 
-.interface.delete {
-  background-color: #F44336;
-}
-
-.interface.delete:hover {
-  background-color: #EF5350;
-}
-
 .interface.reset {
+  background-color: #F44336;
+  border-color: #da301a;
+  grid-column: 1 / -1;
+}
+
+.interface.reset:hover {
+  background-color: #EF5350;
+  
+}
+
+.interface.delete {
   background-color: #FFC107;
-}.interface.reset:hover {
+  border-color: #fbff00;
+}.interface.delete:hover {
   background-color: #FFD54F;
 }
 
 .cursor {
-  animation: blink 1s step-end infinite;
+  display: inline-block;
+  animation: blink 1s steps(1) infinite;
 }
 
 @keyframes blink {
   from, to { visibility: hidden; }
   50% { visibility: visible; }
 }
+
+p.ascii-art {
+  margin-bottom: 20px;
+  line-height: 0.9;
+  font-family: 'Courier New', Courier, monospace;
+  color: #0f0;
+  user-select: none;
+}
+
+@keyframes blink {
+  0%   { opacity: 1; }
+  50%  { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* =========================
+   KEYBOARD
+========================= */
+
+.game-keyboard {
+  margin: 0 auto;
+  padding: 10px;
+
+  display: grid;
+  grid-template-columns: repeat(3, 60px);
+  grid-template-rows: repeat(5, 60px);
+  gap: 10px;
+  justify-content: center;
+
+  width: max-content;
+  background-color: #111;
+  border-radius: 20px;
+
+  user-select: none;
+}
+
+.game-keyboard button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-family: inherit;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+
+  margin: 2px;
+  padding: 0.6em 1.2em;
+
+  background-color: #333;
+  border: 2px solid #555;
+  border-radius: 8px;
+
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+}
+
+.game-keyboard button:hover {
+  background-color: #444;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.game-keyboard button:active {
+  background-color: #555;
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+
+/* =========================
+   GAME SCREEN
+========================= */
+
+.game-screen {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  padding: 20px;
+  min-height: 400px;
+  margin-bottom: 20px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  background-color: #282c34;
+  color: #61dafb;
+  border-radius: 8px;
+  overflow: hidden;
+  overflow-y:auto;
+
+  font-family: 'Share Tech Mono', monospace;
+  text-align: left;
+  font-size: 1.1rem;
+
+  box-shadow:
+    0 0 20px rgba(0, 255, 0, 0.2),
+    inset 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.game-screen p,
+.history p {
+  margin: 0 0 2px;
+  font-weight: bold;
+  color: rgb(0, 255, 0);
+
+  user-select: none;
+  caret-color: transparent;
+  outline: none;
+
+  font-size: clamp(8px, 2vw, 36px);
+  white-space: pre-line;
+}
+
+.game-computer {
+  width: 100%;
+  padding: 50px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  background-color: rgb(85, 83, 72);
+  border-radius: 20px;
+  overflow: hidden;
+
+  box-shadow:
+    0 0 20px rgba(0, 0, 0, 0.2),
+    inset 0 0 30px rgba(255, 255, 255, 0.26);
+}
+

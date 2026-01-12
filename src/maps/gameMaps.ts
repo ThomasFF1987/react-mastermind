@@ -6,7 +6,10 @@ export interface CheckPropositionResult {
   hintResults: HintResult[];
 }
 
+type GamePhase = 'Initialization' | 'Setup' | 'Game' | 'Victory' | 'GameOver';
+
 export interface GameState {
+  phase: GamePhase;
   proposition: string;
   code: string;
   tryCount: number;
