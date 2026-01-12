@@ -1,5 +1,5 @@
-[Last update > December the 28th, 2025 by Thomas Baggi-Sani]
-[Project status - Work in progress...]
+[Last update > January the 12th, 2025 by Thomas Baggi-Sani]
+[Project status - Finished]
 
 Welcome to my react-mastermind project.
 
@@ -22,7 +22,8 @@ This repository is under Creative Commons Zero v1.0 Universal, please refer to t
 To build this app, I've used Vite framework to run my app locally, Visual Studio Code IDE to managed code.
 I've followed the React documentation available here : https://react.dev/learn and get some help from ChatGPT and Github Copilot.
 ChatGPT was used as a support of the documentation to help me understand React principles and find CSS properties to apply to my elements.
-Github Copilot was used to speed up autocompletion.
+Cursor (with Sonet and Gemini) was used to see what can an IDE with AI agents improve in an existing project..
+It helped me to develop new features and reorganize my code
 
 
-# React + TypeScript + Vite
+# Vite + React + TypeScript
