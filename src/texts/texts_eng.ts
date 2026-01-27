@@ -36,6 +36,7 @@ const texts = {
   accountLocked: "You've tried too many times, your account is locked.",
   invalidPasswordLength: (difficulty: number) =>
     `Error - Please enter a password of ${difficulty} unique digits.`,
+  invalidPasswordDuplicates: "Error - Password must contain unique digits only (no duplicates).",
   accessGranted: (name: string) =>
     ` - Access Granted. You're logged in, ${name}-san!`,
   failWithLockedPassword: (

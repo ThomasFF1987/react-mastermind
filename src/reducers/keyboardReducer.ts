@@ -40,7 +40,7 @@ export const createSetupState = (codelength : number, userName : string):GameSta
 export function keyboardReducer( state: GameState, action: KeyboardAction ): GameState {
   switch (action.type) {
     case "ADD_DIGIT":
-      if(state.phase == "Game"){
+      if(state.phase === "Game"){
         if(state.proposition.length >= state.game.difficulty) {
           return state; // Ne pas ajouter plus de chiffres que la difficulté
         }
@@ -65,10 +65,10 @@ export function keyboardReducer( state: GameState, action: KeyboardAction ): Gam
       };
 
     case "VALIDATE":
-      if(state.phase == "Game"){
+      if(state.phase === "Game"){
         return pressValidDuringGame(state);
       }
-      else if(state.phase == "Setup"){
+      else if(state.phase === "Setup"){
         return pressValidDuringSetup(state);
       }
       return state;
@@ -82,32 +82,43 @@ export function keyboardReducer( state: GameState, action: KeyboardAction ): Gam
 }
 
 function checkProposition(proposition: string, code: string): CheckPropositionResult {
-    let nbGoodPlace : number= 0;
+    let nbGoodPlace : number = 0;
     let nbGoodNumber : number = 0;
-    //let result : string = "";
-    let hintResults : HintResult[] = [];
+    const hintResults : HintResult[] = [];
 
     if(proposition === code) {
       return {nbGoodPlace: proposition.length, nbGoodNumber: proposition.length, hintResults: Array(proposition.length).fill('correctlyPlaced')};
     }
 
-    for(let i : number = 0; i < proposition.length; i++) {
-      for(let j : number = 0; j < code.length; j++) {
-        if(proposition[i] === code[j]) {
-          if(i==j){
-            nbGoodPlace++;
-            hintResults.push('correctlyPlaced');
-          }
-          else{
+    // Créer des tableaux pour marquer les chiffres déjà utilisés
+    const codeUsed: boolean[] = Array(code.length).fill(false);
+    const propUsed: boolean[] = Array(proposition.length).fill(false);
+
+    // Premier passage : identifier les chiffres bien placés
+    for(let i = 0; i < proposition.length; i++) {
+      if(proposition[i] === code[i]) {
+        nbGoodPlace++;
+        hintResults[i] = 'correctlyPlaced';
+        codeUsed[i] = true;
+        propUsed[i] = true;
+      }
+    }
+
+    // Deuxième passage : identifier les chiffres mal placés
+    for(let i = 0; i < proposition.length; i++) {
+      if(!propUsed[i]) {
+        let found = false;
+        for(let j = 0; j < code.length; j++) {
+          if(!codeUsed[j] && proposition[i] === code[j]) {
             nbGoodNumber++;
-            hintResults.push('wronglyPlaced');
+            hintResults[i] = 'wronglyPlaced';
+            codeUsed[j] = true;
+            found = true;
+            break;
           }
-          j=code.length;
         }
-        else{
-          if(j === code.length -1){
-            hintResults.push('notInCode');
-          }
+        if(!found) {
+          hintResults[i] = 'notInCode';
         }
       }
     }
@@ -157,7 +168,7 @@ function pressValidDuringGame(state : GameState) : GameState {
   }
   else if (!hasUniqueDigits(state.proposition)) {
     // Proposition invalide - chiffres non uniques
-    hintMessage = `${texts.invalidPasswordLength(state.game.difficulty)}`;
+    hintMessage = `${texts.invalidPasswordDuplicates}`;
     currentHintResults = [];
   }
   else if (state.proposition === state.code) {
